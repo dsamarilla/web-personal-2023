@@ -3,6 +3,7 @@ const DB_PASSWORD = "admin123";
 const DB_HOST = "web-personal.ecdmtet.mongodb.net";
 const API_VERSION = "v1";
 const IP_SERVER = "localhost";
+const JWT_SECRET_KEY = "COLOCARCUALQUIERCOSAAQUICOMOTOKEN";
 
 module.exports = {
   DB_USER,
@@ -10,4 +11,5 @@ module.exports = {
   DB_HOST,
   API_VERSION,
   IP_SERVER,
+  JWT_SECRET_KEY,
 };
