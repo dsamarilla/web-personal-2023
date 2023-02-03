@@ -1,6 +1,8 @@
 const { json } = require("body-parser");
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
+const image = require("../utils/image");
+const user = require("../models/user");
 async function getMe(req, res) {
   const { user_id } = req.user;
   const response = await User.findById(user_id);
@@ -28,7 +30,6 @@ async function createUser(req, res) {
   const salt = bcrypt.genSaltSync(10);
   const hashPassword = bcrypt.hashSync(password, salt);
   const user = new User({ ...req.body, active: false });
-  const image = require("../utils/image");
   user.password = hashPassword;
   console.log(user);
 
@@ -45,8 +46,49 @@ async function createUser(req, res) {
     }
   });
 }
+
+async function updateUser(req, res) {
+  const { id } = req.params;
+  const userData = req.body;
+
+  if (userData.password) {
+    const salt = bcrypt.genSaltSync(10);
+    const hashPassword = bcrypt.hashSync(userData.password, salt);
+    userData.password = hashPassword;
+  } else {
+    delete userData.password;
+  }
+  //avatar
+  if (req.files.avatar) {
+    const imagePath = image.getFilePath(req.files.avatar);
+    console.log(req.files.avatar);
+    userData.avatar = imagePath;
+  }
+
+  User.findByIdAndUpdate({ _id: id }, userData, (error) => {
+    if (error) {
+      res.status(400).send({ msg: "Error al actualizar el usuario" });
+    } else {
+      res.status(200).send({ msg: "Actualizacion correcta" });
+    }
+  });
+}
+
+async function deleteUser(req,res){
+    const {id}=req.params;
+    User.findByIdAndDelete(id,(error)=>{
+        if(error){
+            res.status(400).send({msg:"Error al eliminar el usuario"});
+        }else{
+            res.status(200).send({msg:"Usuario eliminado"});
+        }
+    })
+}
+
 module.exports = {
   getMe,
   getUsers,
   createUser,
+  updateUser,
+  deleteUser
 };
